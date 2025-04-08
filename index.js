@@ -3,6 +3,13 @@ const cheerio = require("cheerio");
 const fs = require("node:fs");
 const xlsx = require("xlsx");
 
+const cleanText = (text) =>
+  text
+    .replace(/\s+/g, " ") // Collapse multiple spaces/newlines/tabs into one space
+    .replace(/&nbsp;/g, " ") // Decode HTML space
+    .replace(/&amp;/g, "&") // Decode HTML ampersand
+    .trim();
+
 const fetchData = async () => {
   try {
     let jobs = [];
@@ -22,21 +29,27 @@ const fetchData = async () => {
 
         const jobCard = $(".new-joblist");
         jobCard.each((idx, ele) => {
-          const jobTitle = $(ele).find("h2.heading-trun > a").text();
+          const jobTitle = cleanText($(ele).find("h2.heading-trun > a").text());
           // console.log(jobTitle, "job_title");
 
-          const companyName = $(ele).find("h3.joblist-comp-name").text();
+          const companyName = cleanText(
+            $(ele).find("h3.joblist-comp-name").text()
+          );
           // console.log(companyName, "company Name");
 
           let locationEl = $(ele).find("li.srp-zindex.location-tru");
-          let location = locationEl.attr("title") || locationEl.text() || "";
+          let location = cleanText(
+            locationEl.attr("title") || locationEl.text() || ""
+          );
           location = location.trim();
           console.log(location, "location");
 
           // const jobType = $(ele).find(".job-description__").text();
           // console.log(jobType, "jobType");
 
-          let postedDateText = $(ele).find(".sim-posted span").text().trim();
+          let postedDateText = cleanText(
+            $(ele).find(".sim-posted span").text().trim()
+          );
 
           let actualDate = postedDateText;
           if (postedDateText.toLowerCase() === "posted today") {
@@ -54,7 +67,9 @@ const fetchData = async () => {
 
           console.log("Converted posted date:", actualDate);
 
-          const description = $(ele).find(".job-description__").text();
+          const description = cleanText(
+            $(ele).find(".job-description__").text()
+          );
 
           // console.log(description, "descriprtion");
 
@@ -74,14 +89,22 @@ const fetchData = async () => {
             });
           }
         });
-        // console.log(jobs, "jobs");
+        console.log(jobs, "jobs");
         console.log(`Page ${seq} processed, total jobs so far: ${jobs.length}`);
       });
     }
     const workBook = xlsx.utils.book_new();
     const sheet = xlsx.utils.json_to_sheet(jobs);
-    xlsx.utils.book_append_sheet(workBook, sheet, "jobs");
-    xlsx.writeFile(workBook, "Jobs-Scrapping.xlsx");
+    xlsx.utils.book_append_sheet(workBook, sheet, "jobs", {
+      header: [
+        "JobTitle",
+        "CompanyName",
+        "Location",
+        "PostedDate",
+        "Description",
+      ],
+    });
+    xlsx.writeFile(workBook, "Jobs-Scrapping-1.xlsx");
     console.log("XLSX file created successfully!");
   } catch (err) {
     console.log(err, "error while fetching data");
