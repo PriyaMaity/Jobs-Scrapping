@@ -1,0 +1,4 @@
+node_modules/
+*.log
+jobs.txt
+Jobs-Scrapping.xlsx
