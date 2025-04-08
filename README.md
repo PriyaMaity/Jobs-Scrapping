@@ -68,7 +68,10 @@ Each job entry in the Excel file contains:
 | Software Dev... | ABC Tech     | Mumbai   | 2025-04-05  | Knowledge of JS...|
 
 ---
+### 📊 Excel Sheet Output  
+[👉 Click here to download Excel sheet](https://github.com/PriyaMaity/Jobs-Scrapping/raw/main/Jobs-Scrapping.xlsx)
 
+------
 ## 🧩 Dependencies
 
 - [axios](https://www.npmjs.com/package/axios) - For HTTP requests
